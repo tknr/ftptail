@@ -21,6 +21,7 @@ Options:
    -p, --password-file=P    Use the password stored in P to login (except if P equals \'prompt\')
    -i, --inband-signaling   Highlight the start and end of each update
    -v, --verbose            Dump info about FTP connection to STDERR
+   -e, --encode             set encode of log file
 
 ';
     exit 1;
@@ -32,9 +33,10 @@ use File::Basename;
 use File::Temp qw/ :POSIX /;
 use Carp;
 use Term::ReadKey;
+use Encode 'decode';
 use strict;
 
-my ($lines,$sleepInterval,$follow,$inbandSignaling,$verbose)=(10,0,0,0,0);
+my ($lines,$sleepInterval,$follow,$inbandSignaling,$verbose,$encode)=(10,0,0,0,0,'UTF-8');
 my ($username,$host,$port) = ("","",21);
 my ($dirname,$basename)=("","");
 my $passwd="";
@@ -71,7 +73,8 @@ sub processCommandLine {
         's|sleep-interval=i' => \$sleepInterval,
         'p|password-file=s'  => \$passwordFile,
         'i|inband-signaling' => \$inbandSignaling,
-        'v|verbose'          => \$verbose) || &usage;
+        'v|verbose'          => \$verbose,
+	'e|encode=s'         => \$encode) || &usage;
 
     my $url = shift @ARGV || &usage('You must specify a URL to tail. Example: will@hamstersoup.com/robots.txt');
     $url =~ /([^@]+)\@([^\/]+)\/(.+)/ || die "Malformed URL? Cannot extract user\@host/file from $url. user=[$1] host=[$2] file=[$3]\n";
@@ -124,7 +127,8 @@ sub getNlines {
     my $startLine = $length-$lines;
     if ($startLine<0) { $startLine=0; }
     for (my $i=$startLine+1; $i<=$length; $i++) { # skip the first line, it will probably be truncated
-        print $data[$i];
+	my $str = decode($encode, $data[$i]);
+	print $str;
     }
     $inbandSignaling && print "#END: (This is a hack to signal end of data in pipe)\n";
     $inbandSignaling && &flushPipe;
