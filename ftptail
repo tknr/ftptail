@@ -33,7 +33,7 @@ use File::Basename;
 use File::Temp qw/ :POSIX /;
 use Carp;
 use Term::ReadKey;
-use Encode 'decode';
+use Encode;
 use strict;
 
 my ($lines,$sleepInterval,$follow,$inbandSignaling,$verbose,$encode)=(10,0,0,0,0,'UTF-8');
