@@ -128,7 +128,7 @@ sub getNlines {
     if ($startLine<0) { $startLine=0; }
     for (my $i=$startLine+1; $i<=$length; $i++) { # skip the first line, it will probably be truncated
 	my $str = decode($encode, $data[$i]);
-	print $str;
+	print encode('utf-8',$str);
     }
     $inbandSignaling && print "#END: (This is a hack to signal end of data in pipe)\n";
     $inbandSignaling && &flushPipe;
